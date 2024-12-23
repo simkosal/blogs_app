@@ -1,11 +1,11 @@
 import 'package:blogs_app/src/screens/home.dart';
-import 'package:blogs_app/src/utils/constrants.dart';
+// import 'package:blogs_app/src/utils/constrants.dart';
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+// import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
-  await Supabase.initialize(
-      url: Constrants.projectUrl, anonKey: Constrants.apiKey);
+  // await Supabase.initialize(
+  //     url: Constrants.projectUrl, anonKey: Constrants.apiKey);
   runApp(const MyApp());
 }
 
