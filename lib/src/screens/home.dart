@@ -1,179 +1,3 @@
-// import 'dart:async';
-
-// import 'package:app_links/app_links.dart';
-// import 'package:blogs_app/src/models/blogs_data.dart';
-// import 'package:blogs_app/src/screens/home_detail.dart';
-// import 'package:flutter/material.dart';
-
-// class HomeScreen extends StatefulWidget {
-//   const HomeScreen({super.key});
-
-//   @override
-//   State<HomeScreen> createState() => _HomeScreenState();
-// }
-
-// class _HomeScreenState extends State<HomeScreen> {
-//   // Parse the deep link URL to extract the productID
-//   String? getProductID(String? link) {
-//     if (link == null || link.isEmpty) return null;
-
-//     final uri = Uri.tryParse(link);
-
-//     // If the URL has properly formatted query parameters
-//     if (uri != null && uri.queryParameters.containsKey('productID')) {
-//       return uri.queryParameters['productID'];
-//     }
-
-//     // Handle cases where productID appears in the path (e.g., "/productID=10")
-//     final regex =
-//         RegExp(r'productID=([^&/]+)'); // Match 'productID=' followed by value
-//     final match = regex.firstMatch(link);
-//     return match?.group(1); // Return the matched value
-//   }
-
-//   @override
-//   void dispose() {
-//     _linkSubscription?.cancel();
-
-//     super.dispose();
-//   }
-
-//   late AppLinks _appLinks;
-//   StreamSubscription<Uri>? _linkSubscription;
-
-//   Future<void> initDeepLinks() async {
-//     _appLinks = AppLinks();
-
-//     // Handle links
-//     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-//       debugPrint('onAppLink: $uri');
-//       debugPrint(uri.path);
-//       route(pID: uri.path);
-//       message(uri.host);
-//     });
-//   }
-
-//   // // Initialize deep link listener
-//   // Future<void> _initDeepLink() async {
-//   //   try {
-//   //     // Check for incoming deep links
-//   //     final initialLink = await getInitialLink();
-//   //     if (initialLink != null) {
-//   //       String? pID = getProductID(initialLink);
-//   //       route(pID: pID);
-//   //     }
-
-//   //     // Listen for incoming deep links while the app is in the foreground
-//   //     linkStream.listen((String? link) {
-//   //       if (link != null) {
-//   //         String? pID = getProductID(link);
-//   //         route(pID: pID);
-//   //       }
-//   //     });
-//   //   } catch (e) {
-//   //     debugPrint('Error occurred while handling deep link: $e');
-//   //   }
-//   // }
-
-//   void route({String? pID = "0"}) {
-//     try {
-//       Map<String, String> element =
-//           blogs.firstWhere((element) => element['pID'] == pID);
-
-//       Navigator.of(context).push(MaterialPageRoute(
-//           builder: (ctx) => HomeDetail(
-//                 data: element,
-//               )));
-//     } catch (e) {
-//       message('Not found: ($pID)');
-//     }
-//   }
-
-//   void message(String? msg) {
-//     ScaffoldMessenger.of(context)
-//         .showSnackBar(SnackBar(content: Text(msg ?? 'Untitled')));
-//   }
-
-//   @override
-//   void initState() {
-//     // _initDeepLink();
-//     initDeepLinks();
-//     super.initState();
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final theme = Theme.of(context).textTheme;
-
-//     return Scaffold(
-//       appBar: AppBar(
-//         backgroundColor: Colors.black,
-//         title: Text('Home',
-//             style: theme.headlineSmall?.copyWith(color: Colors.white)),
-//       ),
-//       body: LayoutBuilder(
-//         builder: (context, constraints) {
-//           // Determine the layout based on the screen width
-//           if (constraints.maxWidth > 600) {
-//             return Center(
-//               child: Container(
-//                 alignment: Alignment.center,
-//                 width: 900,
-//                 child: GridView.builder(
-//                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-//                     crossAxisCount: 2,
-//                     mainAxisSpacing: 4.0,
-//                     crossAxisSpacing: 4.0,
-//                   ),
-//                   padding: const EdgeInsets.all(16.0),
-//                   itemCount: blogs.length,
-//                   itemBuilder: (context, index) {
-//                     return PostCard(
-//                         onPressed: () {
-//                           Navigator.of(context).push(MaterialPageRoute(
-//                               builder: (ctx) =>
-//                                   HomeDetail(data: blogs[index])));
-//                         },
-//                         imagePath: blogs[index]['path']!,
-//                         category: blogs[index]['category']!,
-//                         date: blogs[index]['date']!,
-//                         title: blogs[index]['title']!,
-//                         description: blogs[index]['shortDescription']!);
-//                   },
-//                 ),
-//               ),
-//             );
-//           } else {
-//             // Mobile layout: Single-column list
-//             return ListView.builder(
-//               padding: const EdgeInsets.all(16.0),
-//               itemCount: blogs.length,
-//               itemBuilder: (context, index) {
-//                 return Padding(
-//                   padding: const EdgeInsets.only(bottom: 16.0),
-//                   child: IntrinsicHeight(
-//                     child: PostCard(
-//                       onPressed: () {
-//                         Navigator.of(context).push(MaterialPageRoute(
-//                             builder: (ctx) => HomeDetail(data: blogs[index])));
-//                       },
-//                       imagePath: blogs[index]['path']!,
-//                       category: blogs[index]['category']!,
-//                       date: blogs[index]['date']!,
-//                       title: blogs[index]['title']!,
-//                       description: blogs[index]['shortDescription']!,
-//                     ),
-//                   ),
-//                 );
-//               },
-//             );
-//           }
-//         },
-//       ),
-//     );
-//   }
-// }
-
 import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:blogs_app/src/models/blogs_data.dart';
@@ -191,6 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _navigatorKey = GlobalKey<NavigatorState>();
   late AppLinks _appLinks;
   StreamSubscription<Uri>? _linkSubscription;
+  String? _initialLink;
 
   @override
   void initState() {
@@ -211,15 +36,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Handle links
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      debugPrint('onAppLink: $uri');
+      _handleDeepLink(uri);
       openAppLink(uri);
+    });
+    // Get the initial link
+    try {
+      final initialUri = await _appLinks.getInitialAppLink();
+      if (initialUri != null) {
+        _handleDeepLink(initialUri);
+        openAppLink(initialUri);
+      }
+    } catch (e) {
+      debugPrint('Error initializing app links: $e');
+    }
+  }
+
+  void _handleDeepLink(Uri uri) {
+    final route = uri.path;
+    setState(() {
+      _initialLink = route;
     });
   }
 
   void openAppLink(Uri uri) {
-    final productId = uri.queryParameters['productID'];
+    final productId = uri.queryParameters['blog'];
     if (productId != null) {
-      _navigatorKey.currentState?.pushNamed('/productID/$productId');
+      _navigatorKey.currentState?.pushNamed('/blog/$productId');
     } else {
       _navigatorKey.currentState?.pushNamed('/');
     }
@@ -232,12 +74,14 @@ class _HomeScreenState extends State<HomeScreen> {
       navigatorKey: _navigatorKey,
       initialRoute: "/",
       onGenerateRoute: (RouteSettings settings) {
+        // Use the deep link if available
+        final routeName = _initialLink ?? settings.name;
         Widget routeWidget = defaultScreen();
 
-        final routeName = settings.name;
+        // final routeName = settings.name;
         if (routeName != null) {
-          if (routeName.startsWith('/productID/')) {
-            final productId = routeName.replaceFirst('/productID/', '');
+          if (routeName.startsWith('/blog/')) {
+            final productId = routeName.replaceFirst('/blog/', '');
             routeWidget = customScreen(productId);
           }
         }

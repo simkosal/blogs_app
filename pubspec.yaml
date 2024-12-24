@@ -14,8 +14,14 @@ dependencies:
   supabase_flutter: ^2.8.0
   flutter_widget_from_html:
   change_app_package_name:
-  # uni_links:
+  flutter_launcher_icons:
   app_links:
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/ic_launcer.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
 
 dev_dependencies:
   flutter_lints: ^2.0.0
